@@ -2,8 +2,8 @@ from __future__ import unicode_literals, division
 
 from unittest import TestCase
 import optivis.scene
-import components
-import links
+from optivis.bench import components
+from optivis.bench import links
 
 class TestLinkInstantiation(TestCase):
   def setUp(self):

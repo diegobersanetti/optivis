@@ -3,7 +3,7 @@ from __future__ import unicode_literals, division
 import abc
 
 import optivis.geometry
-import components
+from optivis.bench import components
 
 class Node(object):
   __metaclass__ = abc.ABCMeta

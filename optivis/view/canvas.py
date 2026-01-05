@@ -8,10 +8,7 @@ import abc
 import math
 import weakref
 
-import PyQt4.Qt
-import PyQt4.QtCore
-import PyQt4.QtGui
-import PyQt4.QtSvg
+from PyQt5 import QtCore, QtGui, QtSvg, QtWidgets
 
 import optivis.view
 import optivis.view.svg
@@ -42,11 +39,11 @@ class AbstractCanvas(optivis.view.AbstractView):
 
   def create(self):
     # create application
-    self.qApplication = PyQt4.Qt.QApplication(sys.argv)
+    self.qApplication = QtWidgets.QApplication(sys.argv)
     self.qMainWindow = MainWindow()
     
     # set close behaviour to prevent zombie processes
-    self.qMainWindow.setAttribute(PyQt4.QtCore.Qt.WA_DeleteOnClose, True)
+    self.qMainWindow.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
     
     # create drawing area
     self.qScene = GraphicsScene()
@@ -61,13 +58,13 @@ class AbstractCanvas(optivis.view.AbstractView):
     self.menuBar = self.qMainWindow.menuBar()
     self.fileMenu = self.menuBar.addMenu('&File')
     
-    exportAction = PyQt4.QtGui.QAction('Export', self.qMainWindow)
+    exportAction = QtWidgets.QAction('Export', self.qMainWindow)
     exportAction.setShortcut('Ctrl+E')
     exportAction.triggered.connect(self.export)
     
     self.fileMenu.addAction(exportAction)
     
-    exitAction = PyQt4.QtGui.QAction('Exit', self.qMainWindow)
+    exitAction = QtWidgets.QAction('Exit', self.qMainWindow)
     exitAction.setShortcut('Ctrl+Q')
     exitAction.triggered.connect(self.qApplication.quit)
     
@@ -75,7 +72,7 @@ class AbstractCanvas(optivis.view.AbstractView):
     
   def initialise(self):
     # set view antialiasing
-    self.qView.setRenderHints(PyQt4.QtGui.QPainter.Antialiasing | PyQt4.Qt.QPainter.TextAntialiasing | PyQt4.Qt.QPainter.SmoothPixmapTransform | PyQt4.QtGui.QPainter.HighQualityAntialiasing)
+    self.qView.setRenderHints(QtGui.QPainter.Antialiasing | QtGui.QPainter.TextAntialiasing | QtGui.QPainter.SmoothPixmapTransform | QtGui.QPainter.HighQualityAntialiasing)
   
   def calibrateView(self):
     """
@@ -95,74 +92,58 @@ class AbstractCanvas(optivis.view.AbstractView):
     self.qView.setScale(self.zoom)
       
   def draw(self):
-    # draw links
-    for canvasLink in self.canvasLinks:      
+    for canvasLink in self.canvasLinks:
       canvasLink.draw(self.qScene, startMarkerRadius=self.startMarkerRadius, endMarkerRadius=self.endMarkerRadius, startMarkerColor=self.startMarkerColor, endMarkerColor=self.endMarkerColor)
-      
-      if self.showFlags & AbstractCanvas.SHOW_LINKS:	
-	# set visibility
-	canvasLink.graphicsItem.setVisible(True)
+      if self.showFlags & AbstractCanvas.SHOW_LINKS:
+        canvasLink.graphicsItem.setVisible(True)
       else:
-	canvasLink.graphicsItem.setVisible(False)
-      
-      # show start and end markers?
+        canvasLink.graphicsItem.setVisible(False)
+
       startMarker = self.showFlags & AbstractCanvas.SHOW_START_MARKERS
       endMarker = self.showFlags & AbstractCanvas.SHOW_END_MARKERS
-      
       canvasLink.startMarker.setVisible(startMarker)
       canvasLink.endMarker.setVisible(endMarker)
-    
-    # draw components
+
     for canvasComponent in self.canvasComponents:
       canvasComponent.draw(self.qScene)
-      
       if self.showFlags & AbstractCanvas.SHOW_COMPONENTS:
-	canvasComponent.graphicsItem.setVisible(True)
+        canvasComponent.graphicsItem.setVisible(True)
       else:
-	canvasComponent.graphicsItem.setVisible(False)
-    
-    # draw labels
+        canvasComponent.graphicsItem.setVisible(False)
+
     for canvasLabel in self.canvasLabels:
       canvasLabel.draw(self.qScene, self.labelFlags)
-      
       if self.showFlags & AbstractCanvas.SHOW_LABELS:
-	canvasLabel.graphicsItem.setVisible(True)
+        canvasLabel.graphicsItem.setVisible(True)
       else:
-	canvasLabel.graphicsItem.setVisible(False)
+        canvasLabel.graphicsItem.setVisible(False)
 
   def redraw(self, *args, **kwargs):    
-    # update links
-    for canvasLink in self.canvasLinks:      
-      if self.showFlags & AbstractCanvas.SHOW_LINKS:	
-	canvasLink.redraw(startMarkerRadius=self.startMarkerRadius, endMarkerRadius=self.endMarkerRadius, startMarkerColor=self.startMarkerColor, endMarkerColor=self.endMarkerColor)
-	
-	# set visibility
-	canvasLink.graphicsItem.setVisible(True)
+    for canvasLink in self.canvasLinks:
+      if self.showFlags & AbstractCanvas.SHOW_LINKS:
+        canvasLink.redraw(startMarkerRadius=self.startMarkerRadius, endMarkerRadius=self.endMarkerRadius, startMarkerColor=self.startMarkerColor, endMarkerColor=self.endMarkerColor)
+        canvasLink.graphicsItem.setVisible(True)
       else:
-	canvasLink.graphicsItem.setVisible(False)
-      
-      # show start and end markers?
+        canvasLink.graphicsItem.setVisible(False)
+
       startMarker = self.showFlags & AbstractCanvas.SHOW_START_MARKERS
       endMarker = self.showFlags & AbstractCanvas.SHOW_END_MARKERS
-      
       canvasLink.startMarker.setVisible(startMarker)
       canvasLink.endMarker.setVisible(endMarker)
-    
-    # update components
+
     for canvasComponent in self.canvasComponents:
       if self.showFlags & AbstractCanvas.SHOW_COMPONENTS:
-	canvasComponent.redraw()
-	canvasComponent.graphicsItem.setVisible(True)
+        canvasComponent.redraw()
+        canvasComponent.graphicsItem.setVisible(True)
       else:
-	canvasComponent.graphicsItem.setVisible(False)
-    
-    # update labels
+        canvasComponent.graphicsItem.setVisible(False)
+
     for canvasLabel in self.canvasLabels:
       if self.showFlags & AbstractCanvas.SHOW_LABELS:
-	canvasLabel.redraw(self.labelFlags)
-	canvasLabel.graphicsItem.setVisible(True)
+        canvasLabel.redraw(self.labelFlags)
+        canvasLabel.graphicsItem.setVisible(True)
       else:
-	canvasLabel.graphicsItem.setVisible(False)
+        canvasLabel.graphicsItem.setVisible(False)
 
   def layout(self):
     # instantiate layout manager and arrange objects
@@ -190,12 +171,12 @@ class AbstractCanvas(optivis.view.AbstractView):
     # if IPython is being used, don't block the terminal
     try:
       if __IPYTHON__:
-	from IPython.lib.inputhook import enable_gui
-	app = enable_gui('qt4')
+        from IPython.lib.inputhook import enable_gui
+        enable_gui('qt5')
       else:
-	raise ImportError
+        raise ImportError
     except (ImportError, NameError):
-      sys.exit(self.qApplication.exec_())
+      sys.exit(self.qApplication.exec())
 
   def createCanvasLinks(self):
     self.canvasLinks = []
@@ -216,15 +197,13 @@ class AbstractCanvas(optivis.view.AbstractView):
     
     for canvasLink in self.canvasLinks:
       if canvasLink.item.labels is not None:
-	# Add labels to list of canvas labels.
-	for label in canvasLink.item.labels:
-	  self.canvasLabels.append(CanvasLabel(label))
-	
+        for label in canvasLink.item.labels:
+          self.canvasLabels.append(CanvasLabel(label))
+    
     for canvasComponent in self.canvasComponents:
       if canvasComponent.item.labels is not None:
-	# Add labels to list of canvas labels.
-	for label in canvasComponent.item.labels:
-	  self.canvasLabels.append(CanvasLabel(label))
+        for label in canvasComponent.item.labels:
+          self.canvasLabels.append(CanvasLabel(label))
   
   def setZoom(self, zoom):
     self.zoom = zoom
@@ -241,38 +220,34 @@ class AbstractCanvas(optivis.view.AbstractView):
     
     # get path to file to export to
     while True:    
-      dialog = PyQt4.Qt.QFileDialog(parent=self.qMainWindow, caption='Export SVG', directory=directory, filter=';;'.join(optivis.view.svg.Svg._Svg__filters))
-      dialog.setAcceptMode(PyQt4.Qt.QFileDialog.AcceptSave)
-      dialog.setFileMode(PyQt4.Qt.QFileDialog.AnyFile)
+      dialog = QtWidgets.QFileDialog(parent=self.qMainWindow, caption='Export SVG', directory=directory, filter=';;'.join(optivis.view.svg.Svg._Svg__filters))
+      dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+      dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
 
       # show dialog
-      dialog.exec_()
+      dialog.exec()
       
-      if len(dialog.selectedFiles()) is 0:
-	# no filename specified
-	return
+      if len(dialog.selectedFiles()) == 0:
+        return
 
       # get file path and format
       path, extension = os.path.splitext(str(dialog.selectedFiles()[0]))
       
       try:
-	# check if we can write to the path
-	open(path, 'w').close()
-	os.unlink(path)
-	
-	# get valid format
-	fileFormat = extension[1:]
+        open(path, 'w').close()
+        os.unlink(path)
+        
+        fileFormat = extension[1:]
 
-	if extension not in optivis.view.svg.Svg._Svg__extensions:
-	  PyQt4.Qt.QMessageBox.critical(self.qMainWindow, 'File extension invalid', 'The specified file extension, \'{0}\', is invalid'.format(extension))
-	  
-	  continue
-	
-	break
+        if extension not in optivis.view.svg.Svg._Svg__extensions:
+          QtWidgets.QMessageBox.critical(self.qMainWindow, 'File extension invalid', 'The specified file extension, \'{0}\', is invalid'.format(extension))
+          continue
+        
+        break
       except OSError:
-	PyQt4.Qt.QMessageBox.critical(self.qMainWindow, 'Filename invalid', 'The specified filename is invalid')
+        QtWidgets.QMessageBox.critical(self.qMainWindow, 'Filename invalid', 'The specified filename is invalid')
       except IOError:
-	PyQt4.Qt.QMessageBox.critical(self.qMainWindow, 'Permission denied', 'You do not have permission to save the file to the specified location.')
+        QtWidgets.QMessageBox.critical(self.qMainWindow, 'Permission denied', 'You do not have permission to save the file to the specified location.')
 
     # export
     return self.exportSvg(path=path + extension, fileFormat=fileFormat)
@@ -281,20 +256,20 @@ class AbstractCanvas(optivis.view.AbstractView):
     svgView = optivis.view.svg.Svg(self.scene, layoutManager=self.layoutManager)
     svgView.export(*args, **kwargs)
 
-class MainWindow(PyQt4.Qt.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
   def __init__(self, *args, **kwargs):
     super(MainWindow, self).__init__(*args, **kwargs)
 
-class GraphicsScene(PyQt4.QtGui.QGraphicsScene):
+class GraphicsScene(QtWidgets.QGraphicsScene):
   def __init__(self, *args, **kwargs):
     super(GraphicsScene, self).__init__(*args, **kwargs)
 
-class GraphicsView(PyQt4.QtGui.QGraphicsView):
-  wheel = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QWheelEvent)
+class GraphicsView(QtWidgets.QGraphicsView):
+  wheel = QtCore.pyqtSignal(QtGui.QWheelEvent)
   
   def __init__(self, *args, **kwargs):
     # initialise this as a QObject (QGraphicsView is not a descendent of QObject and so can't send signals by default)
-    PyQt4.QtCore.QObject.__init__(self)
+    QtCore.QObject.__init__(self)
     
     # now initialise as normal
     super(GraphicsView, self).__init__(*args, **kwargs)
@@ -313,7 +288,7 @@ class GraphicsView(PyQt4.QtGui.QGraphicsView):
     There is no native setScale() method for a QGraphicsView, so this must be achieved via setTransform().
     """
     
-    transform = PyQt4.QtGui.QTransform()
+    transform = QtGui.QTransform()
     transform.scale(scale, scale)
     
     self.setTransform(transform)
@@ -370,10 +345,9 @@ class Full(AbstractCanvas):
     # Refresh label flags
     for canvasLabel in self.canvasLabels:
       if canvasLabel.item.content is not None:
-	for kv in canvasLabel.item.content.items():
-	  if kv[0] not in self.labelFlags.keys():	    
-	    # add label to list of labels, but set it off by default
-	    self.labelFlags[kv[0]] = False
+        for kv in canvasLabel.item.content.items():
+          if kv[0] not in self.labelFlags.keys():
+            self.labelFlags[kv[0]] = False
     
     if refreshLabelMenu:
       # Now that all labels have been created the dictionary of
@@ -381,7 +355,7 @@ class Full(AbstractCanvas):
       self.labelMenu.clear()
     
       for kv in self.labelFlags.items():
-        a = PyQt4.QtGui.QAction(kv[0], self.qMainWindow, checkable=True)
+        a = QtWidgets.QAction(kv[0], self.qMainWindow, checkable=True)
         
         # set widget data to the label key
         a.data = kv[0]
@@ -396,7 +370,7 @@ class Full(AbstractCanvas):
         self.labelMenu.addAction(a)
         
       self.labelMenu.addSeparator()
-      self.labelMenu.addAction(PyQt4.QtGui.QAction("Clear all...", self.qMainWindow))
+      self.labelMenu.addAction(QtWidgets.QAction("Clear all...", self.qMainWindow))
     
     # call parent redraw
     super(Full, self).redraw(*args, **kwargs)
@@ -414,11 +388,11 @@ class Full(AbstractCanvas):
     self.controls.setFixedWidth(300)
     
     ### create container for view + layer buttons and controls
-    self.container = PyQt4.QtGui.QWidget()
+    self.container = QtWidgets.QWidget()
 
     ### create container for view + layer buttons
-    self.viewWidget = PyQt4.QtGui.QWidget()
-    self.viewWidgetVBox = PyQt4.QtGui.QVBoxLayout()
+    self.viewWidget = QtWidgets.QWidget()
+    self.viewWidgetVBox = QtWidgets.QVBoxLayout()
 
     # add checkbox panel to view widget
     self.viewWidgetVBox.addWidget(ViewCheckboxPanel(self))
@@ -430,7 +404,7 @@ class Full(AbstractCanvas):
     self.viewWidget.setLayout(self.viewWidgetVBox)
     
     ### create and populate layout
-    self.hBox = PyQt4.QtGui.QHBoxLayout()
+    self.hBox = QtWidgets.QHBoxLayout()
     
     # add qView to layout
     self.hBox.addWidget(self.viewWidget, stretch=3)
@@ -455,7 +429,7 @@ class Full(AbstractCanvas):
     self.qView.setMinimumSize(self.size.x, self.size.y)
 
     # set transformation anchor to reference the mouse position, for mouse zooming
-    self.qView.setTransformationAnchor(PyQt4.QtGui.QGraphicsView.AnchorUnderMouse)
+    self.qView.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
 
     # set view box, etc.
     self.calibrateView()
@@ -540,7 +514,7 @@ class Full(AbstractCanvas):
   def wheelHandler(self, event):
     # get wheel delta, dividing by 120 (to represent 15 degrees of rotation -
     # see http://qt-project.org/doc/qt-4.8/qwheelevent.html#delta)
-    delta = event.delta() / 120
+    delta = event.angleDelta().y() / 120
     
     # calculate new zoom level
     zoom = self.zoom + delta * self.zoomStep
@@ -548,7 +522,7 @@ class Full(AbstractCanvas):
     # set zoom
     self.setZoom(zoom)
 
-class ViewCheckboxPanel(PyQt4.QtGui.QGroupBox):
+class ViewCheckboxPanel(QtWidgets.QGroupBox):
   def __init__(self, canvas, *args, **kwargs):
     super(ViewCheckboxPanel, self).__init__(*args, **kwargs)
 
@@ -557,22 +531,22 @@ class ViewCheckboxPanel(PyQt4.QtGui.QGroupBox):
     self.setTitle('Layers')
 
     # create horizontal layout
-    self.hBox = PyQt4.QtGui.QHBoxLayout()
+    self.hBox = QtWidgets.QHBoxLayout()
 
     # create buttons
-    self.button1 = PyQt4.QtGui.QCheckBox("Components")
+    self.button1 = QtWidgets.QCheckBox("Components")
     self.button1.setChecked(self.canvas.showFlags & AbstractCanvas.SHOW_COMPONENTS)
     self.button1.stateChanged.connect(self.showCheckBoxChanged)
-    self.button2 = PyQt4.QtGui.QCheckBox("Links")
+    self.button2 = QtWidgets.QCheckBox("Links")
     self.button2.setChecked(self.canvas.showFlags & AbstractCanvas.SHOW_LINKS)
     self.button2.stateChanged.connect(self.showCheckBoxChanged)
-    self.button3 = PyQt4.QtGui.QCheckBox("Labels")
+    self.button3 = QtWidgets.QCheckBox("Labels")
     self.button3.setChecked(self.canvas.showFlags & AbstractCanvas.SHOW_LABELS)
     self.button3.stateChanged.connect(self.showCheckBoxChanged)
-    self.button4 = PyQt4.QtGui.QCheckBox("Start Markers")
+    self.button4 = QtWidgets.QCheckBox("Start Markers")
     self.button4.setChecked(self.canvas.showFlags & AbstractCanvas.SHOW_START_MARKERS)
     self.button4.stateChanged.connect(self.showCheckBoxChanged)
-    self.button5 = PyQt4.QtGui.QCheckBox("End Markers")
+    self.button5 = QtWidgets.QCheckBox("End Markers")
     self.button5.setChecked(self.canvas.showFlags & AbstractCanvas.SHOW_END_MARKERS)
     self.button5.stateChanged.connect(self.showCheckBoxChanged)
 
@@ -601,7 +575,7 @@ class ViewCheckboxPanel(PyQt4.QtGui.QGroupBox):
   def canvas(self, canvas):
     self.__canvas = canvas
 
-class ControlPanel(PyQt4.QtGui.QWidget):  
+class ControlPanel(QtWidgets.QWidget):  
   def __init__(self, canvas, *args, **kwargs):
     super(ControlPanel, self).__init__(*args, **kwargs)
   
@@ -622,25 +596,25 @@ class ControlPanel(PyQt4.QtGui.QWidget):
   
   def addControls(self):
     ### master layout
-    controlLayout = PyQt4.QtGui.QVBoxLayout()
+    controlLayout = QtWidgets.QVBoxLayout()
 
     ### scene controls group (layout and reference component)
-    sceneControlsGroupBox = PyQt4.QtGui.QGroupBox(title="Scene")
+    sceneControlsGroupBox = QtWidgets.QGroupBox(title="Scene")
     sceneControlsGroupBox.setFixedHeight(100)
     
-    sceneControlsGroupBoxLayout = PyQt4.QtGui.QVBoxLayout()
+    sceneControlsGroupBoxLayout = QtWidgets.QVBoxLayout()
 
     ## layout controls
     
     # create a container for this edit widget
-    layoutContainer = PyQt4.QtGui.QWidget()
-    layoutContainerLayout = PyQt4.QtGui.QHBoxLayout()
+    layoutContainer = QtWidgets.QWidget()
+    layoutContainerLayout = QtWidgets.QHBoxLayout()
 
     # remove padding between widgets
     layoutContainerLayout.setContentsMargins(0, 0, 0, 0)
     
-    layoutLabel = PyQt4.QtGui.QLabel("Manager")
-    self.layoutComboBox = PyQt4.QtGui.QComboBox()
+    layoutLabel = QtWidgets.QLabel("Manager")
+    self.layoutComboBox = QtWidgets.QComboBox()
 
     # populate combo box
     layoutManagerClasses = self.canvas.getLayoutManagerClasses()
@@ -659,7 +633,7 @@ class ControlPanel(PyQt4.QtGui.QWidget):
     self.layoutComboBox.currentIndexChanged[int].connect(self.layoutComboBoxChangeHandler)
 
     # create layout edit button
-    layoutEditButton = PyQt4.QtGui.QPushButton("Edit")
+    layoutEditButton = QtWidgets.QPushButton("Edit")
     layoutEditButton.clicked.connect(self.layoutEditButtonClickHandler)
 
     # add combo box to group box
@@ -676,15 +650,15 @@ class ControlPanel(PyQt4.QtGui.QWidget):
     ## scene reference controls
     
     # create a container for this edit widget
-    referenceContainer = PyQt4.QtGui.QWidget()
-    referenceContainerLayout = PyQt4.QtGui.QHBoxLayout()
+    referenceContainer = QtWidgets.QWidget()
+    referenceContainerLayout = QtWidgets.QHBoxLayout()
 
     # remove padding between widgets
     referenceContainerLayout.setContentsMargins(0, 0, 0, 0)
     
     # reference label combo box
-    referenceLabel = PyQt4.QtGui.QLabel("Reference")
-    self.referenceComboBox = PyQt4.QtGui.QComboBox()
+    referenceLabel = QtWidgets.QLabel("Reference")
+    self.referenceComboBox = QtWidgets.QComboBox()
 
     # populate combo box
     canvasComponents = self.canvas.canvasComponents
@@ -725,19 +699,19 @@ class ControlPanel(PyQt4.QtGui.QWidget):
     ### zoom controls
     
     # group box for slider
-    zoomSliderGroupBox = PyQt4.QtGui.QGroupBox(title="Zoom")
+    zoomSliderGroupBox = QtWidgets.QGroupBox(title="Zoom")
     zoomSliderGroupBox.setFixedHeight(100)
     
     # zoom slider
-    self.zoomSlider = PyQt4.QtGui.QSlider(PyQt4.QtCore.Qt.Horizontal)
-    self.zoomSlider.setFocusPolicy(PyQt4.QtCore.Qt.NoFocus)
+    self.zoomSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+    self.zoomSlider.setFocusPolicy(QtCore.Qt.NoFocus)
     self.zoomSlider.setRange(self.canvas.zoomRange[0] / self.canvas.zoomStep, self.canvas.zoomRange[1] / self.canvas.zoomStep)
     self.zoomSlider.setSingleStep(1)
     self.zoomSlider.setSliderPosition(self.canvas.zoom / self.canvas.zoomStep)
     self.zoomSlider.valueChanged[int].connect(self.zoomSliderChanged)
     
     # zoom spin box
-    self.zoomSpinBox = PyQt4.QtGui.QDoubleSpinBox()
+    self.zoomSpinBox = QtWidgets.QDoubleSpinBox()
     self.zoomSpinBox.setDecimals(1)
     self.zoomSpinBox.setRange(*self.canvas.zoomRange)
     self.zoomSpinBox.setSingleStep(self.canvas.zoomStep)
@@ -745,7 +719,7 @@ class ControlPanel(PyQt4.QtGui.QWidget):
     self.zoomSpinBox.valueChanged[float].connect(self.zoomSpinBoxChanged)
     
     # add zoom controls to zoom group box
-    sliderLayout = PyQt4.QtGui.QHBoxLayout()
+    sliderLayout = QtWidgets.QHBoxLayout()
     
     sliderLayout.addWidget(self.zoomSlider)
     sliderLayout.addWidget(self.zoomSpinBox)
@@ -758,15 +732,15 @@ class ControlPanel(PyQt4.QtGui.QWidget):
     ### item edit controls
 
     # group box for item edit controls
-    self.itemEditGroupBox = PyQt4.QtGui.QGroupBox(title="Attributes")
+    self.itemEditGroupBox = QtWidgets.QGroupBox(title="Attributes")
 
     # edit panel within scroll area within group box
-    self.itemEditScrollArea = PyQt4.QtGui.QScrollArea()
+    self.itemEditScrollArea = QtWidgets.QScrollArea()
     self.itemEditPanel = OptivisItemEditPanel()
     self.itemEditPanel.parameterEdited.connect(self.parameterEditedHandler)
     self.itemEditScrollArea.setWidget(self.itemEditPanel)
     self.itemEditScrollArea.setWidgetResizable(True)
-    itemEditGroupBoxLayout = PyQt4.QtGui.QVBoxLayout()
+    itemEditGroupBoxLayout = QtWidgets.QVBoxLayout()
     itemEditGroupBoxLayout.addWidget(self.itemEditScrollArea)
     self.itemEditGroupBox.setLayout(itemEditGroupBoxLayout)
 
@@ -793,8 +767,7 @@ class ControlPanel(PyQt4.QtGui.QWidget):
     layoutManagerClasses = self.canvas.getLayoutManagerClasses()
 
     # get selected item's data (which is the index of the selected layout in layoutManagerClasses)
-    # The toInt() returns a tuple with the data in first position and a 'status' in the second. We don't need the second one.
-    layoutIndex, ok = layoutComboBox.itemData(layoutComboBox.currentIndex()).toInt()
+    layoutIndex = int(layoutComboBox.itemData(layoutComboBox.currentIndex()))
 
     # update canvas layout
     self.canvas.layoutManager = layoutManagerClasses[layoutIndex]
@@ -809,7 +782,7 @@ class ControlPanel(PyQt4.QtGui.QWidget):
     self.canvas.calibrateView()
   
   def layoutEditButtonClickHandler(self):
-    print self.canvas.layoutManager.title
+    print(self.canvas.layoutManager.title)
     layoutEditWindow = CanvasScaleFunctionEditor(self.canvas.qMainWindow, self.canvas.layoutManager)
     layoutEditWindow.show()
     
@@ -821,8 +794,7 @@ class ControlPanel(PyQt4.QtGui.QWidget):
     canvasComponents = self.canvas.canvasComponents
 
     # get selected item's data (which is the index of the selected component in canvasComponents)
-    # The toInt() returns a tuple with the data in first position and a 'status' in the second. We don't need the second one.
-    componentIndex, ok = referenceComboBox.itemData(referenceComboBox.currentIndex()).toInt()
+    componentIndex = int(referenceComboBox.itemData(referenceComboBox.currentIndex()))
 
     # update scene reference
     if componentIndex == 0:
@@ -847,16 +819,16 @@ class ControlPanel(PyQt4.QtGui.QWidget):
   def zoomSpinBoxChanged(self, value):
     self.canvas.setZoom(float(value))
 
-class OptivisItemEditPanel(PyQt4.QtGui.QWidget):
+class OptivisItemEditPanel(QtWidgets.QWidget):
   # signal to emit when item parameters are edited in the GUI
-  parameterEdited = PyQt4.QtCore.pyqtSignal()
+  parameterEdited = QtCore.pyqtSignal()
   
   def __init__(self, *args, **kwargs):
     super(OptivisItemEditPanel, self).__init__(*args, **kwargs)
 
     # create layout to use for edit controls (empty by default)
-    self.vBox = PyQt4.QtGui.QVBoxLayout()
-    self.vBox.setAlignment(PyQt4.QtCore.Qt.AlignTop)
+    self.vBox = QtWidgets.QVBoxLayout()
+    self.vBox.setAlignment(QtCore.Qt.AlignTop)
 
     # set layout
     self.setLayout(self.vBox) 
@@ -893,10 +865,10 @@ class OptivisItemEditPanel(PyQt4.QtGui.QWidget):
       setattr(target, paramName, paramValue)
 
       self.setEditWidgetValidity(widget, True)
-    except AttributeError, e:
+    except AttributeError as e:
       self.setEditWidgetValidity(widget, False)
       raise Exception('Error setting attribute {0} on {1}: {2}'.format(paramName, target, e))
-    except Exception, e:
+    except Exception as e:
       self.setEditWidgetValidity(widget, False)
       raise Exception('Error setting attribute {0} on {1}: {2}'.format(paramName, target, e))
 
@@ -917,9 +889,9 @@ class OptivisItemEditPanel(PyQt4.QtGui.QWidget):
     ### Add built-in attributes.
     
     # Create a group box for built-in parameters
-    parameterGroupBox = PyQt4.QtGui.QGroupBox(title=str(canvasItem.item))
-    layout = PyQt4.QtGui.QVBoxLayout()
-    layout.setAlignment(PyQt4.QtCore.Qt.AlignTop)
+    parameterGroupBox = QtWidgets.QGroupBox(title=str(canvasItem.item))
+    layout = QtWidgets.QVBoxLayout()
+    layout.setAlignment(QtCore.Qt.AlignTop)
 
     # set layout
     parameterGroupBox.setLayout(layout)
@@ -938,14 +910,14 @@ class OptivisItemEditPanel(PyQt4.QtGui.QWidget):
       OptivisCanvasItemDataType.setCanvasWidgetValue(aoiEditWidget, OptivisCanvasItemDataType.SPINBOX, getattr(canvasItem.item, 'aoi'))
       
       # create a container for this edit widget
-      container = PyQt4.QtGui.QWidget()
-      containerLayout = PyQt4.QtGui.QHBoxLayout()
+      container = QtWidgets.QWidget()
+      containerLayout = QtWidgets.QHBoxLayout()
 
       # remove padding between widgets
       containerLayout.setContentsMargins(0, 0, 0, 0)
 
       # create label
-      label = PyQt4.QtGui.QLabel(text="{0} aoi".format(canvasItem.item))
+      label = QtWidgets.QLabel(text="{0} aoi".format(canvasItem.item))
 
       # add label and edit widget to layout
       containerLayout.addWidget(label, 2) # stretch 2
@@ -956,7 +928,7 @@ class OptivisItemEditPanel(PyQt4.QtGui.QWidget):
 
       # add container to edit panel
       layout.addWidget(container)
-	
+    
     # Link specific controls.
     if isinstance(canvasItem.item, optivis.bench.links.AbstractLink):
       # Add length control
@@ -971,14 +943,14 @@ class OptivisItemEditPanel(PyQt4.QtGui.QWidget):
       OptivisCanvasItemDataType.setCanvasWidgetValue(lengthEditWidget, OptivisCanvasItemDataType.SPINBOX, getattr(canvasItem.item, 'length'))
       
       # create a container for this edit widget
-      container = PyQt4.QtGui.QWidget()
-      containerLayout = PyQt4.QtGui.QHBoxLayout()
+      container = QtWidgets.QWidget()
+      containerLayout = QtWidgets.QHBoxLayout()
 
       # remove padding between widgets
       containerLayout.setContentsMargins(0, 0, 0, 0)
 
       # create label
-      label = PyQt4.QtGui.QLabel(text='Length')
+      label = QtWidgets.QLabel(text='Length')
 
       # add label and edit widget to layout
       containerLayout.addWidget(label, 2) # stretch 2
@@ -1003,14 +975,14 @@ class OptivisItemEditPanel(PyQt4.QtGui.QWidget):
       OptivisCanvasItemDataType.setCanvasWidgetValue(azimuthEditWidget, OptivisCanvasItemDataType.SPINBOX, getattr(canvasItem.item, 'azimuth'))
       
       # create a container for this edit widget
-      container = PyQt4.QtGui.QWidget()
-      containerLayout = PyQt4.QtGui.QHBoxLayout()
+      container = QtWidgets.QWidget()
+      containerLayout = QtWidgets.QHBoxLayout()
 
       # remove padding between widgets
       containerLayout.setContentsMargins(0, 0, 0, 0)
 
       # create label
-      label = PyQt4.QtGui.QLabel(text='azimuth')
+      label = QtWidgets.QLabel(text='azimuth')
 
       # add label and edit widget to layout
       containerLayout.addWidget(label, 2) # stretch 2
@@ -1029,65 +1001,48 @@ class OptivisItemEditPanel(PyQt4.QtGui.QWidget):
     # These are only available on AbstractBenchItems, so components and links (but not labels).
     if isinstance(canvasItem.item, optivis.bench.AbstractBenchItem):
       # Create a group box for these external parameters
-      externalParameterGroupBox = PyQt4.QtGui.QGroupBox(title='External Parameters')
-      externalLayout = PyQt4.QtGui.QVBoxLayout()
-      externalLayout.setAlignment(PyQt4.QtCore.Qt.AlignTop)
+      externalParameterGroupBox = QtWidgets.QGroupBox(title='External Parameters')
+      externalLayout = QtWidgets.QVBoxLayout()
+      externalLayout.setAlignment(QtCore.Qt.AlignTop)
 
       # set layout
       externalParameterGroupBox.setLayout(externalLayout)
       
       if canvasItem.item.paramList is not None:
-	# external edit controls provided
+        attributes = canvasItem.item.paramList
+        pykatObject = canvasItem.item.pykatObject
 
-	# get attributes and external item
-	attributes = canvasItem.item.paramList
-	pykatObject = canvasItem.item.pykatObject
+        for paramName in attributes:
+          dataType = attributes[paramName]
+          paramValue = getattr(pykatObject, paramName)
 
-	# loop over attributes from external object and create
-	for paramName in attributes:
-	  dataType = attributes[paramName]
+          try:
+            paramEditWidget = OptivisCanvasItemDataType.getCanvasWidget(paramName, dataType)
+            paramEditWidget.data = (paramName, dataType, weakref.ref(pykatObject))
+          except AttributeError as e:
+            print("[GUI] WARNING: the value of a parameter specified in the parameter list with this object is not available. Skipping.")
+            continue
 
-	  # get attribute value
-	  paramValue = getattr(pykatObject, paramName)
+          if isinstance(paramEditWidget, QtWidgets.QDoubleSpinBox):
+            paramEditWidget.valueChanged[float].connect(self.paramEditWidgetChanged)
+          else:
+            paramEditWidget.textChanged.connect(self.paramEditWidgetChanged)
 
-	  # get widget for this parameter
-	  try:
-	    paramEditWidget = OptivisCanvasItemDataType.getCanvasWidget(paramName, dataType)
+          OptivisCanvasItemDataType.setCanvasWidgetValue(paramEditWidget, dataType, paramValue)
 
-	    # give the edit widget knowledge of its canvas item
-	    # use a weak reference to avoid making the canvas item a zombie if it is deleted
-	    paramEditWidget.data = (paramName, dataType, weakref.ref(pykatObject))
-	  except AttributeError, e:
-	    print "[GUI] WARNING: the value of a parameter specified in the parameter list with this object is not available. Skipping."
-	    continue
+          container = QtWidgets.QWidget()
+          containerLayout = QtWidgets.QHBoxLayout()
+          containerLayout.setContentsMargins(0, 0, 0, 0)
 
-	  # connect edit widget text change signal to a slot that deals with it
-	  self.connect(paramEditWidget, PyQt4.QtCore.SIGNAL("textChanged(QString)"), self.paramEditWidgetChanged)
-	      
-	  OptivisCanvasItemDataType.setCanvasWidgetValue(paramEditWidget, dataType, paramValue)
+          label = QtWidgets.QLabel(text=paramName)
 
-	  # create a container for this edit widget
-	  container = PyQt4.QtGui.QWidget()
-	  containerLayout = PyQt4.QtGui.QHBoxLayout()
+          containerLayout.addWidget(label, 2)
+          containerLayout.addWidget(paramEditWidget, 1)
 
-	  # remove padding between widgets
-	  containerLayout.setContentsMargins(0, 0, 0, 0)
-
-	  # create label
-	  label = PyQt4.QtGui.QLabel(text=paramName)
-
-	  # add label and edit widget to layout
-	  containerLayout.addWidget(label, 2) # stretch 2
-	  containerLayout.addWidget(paramEditWidget, 1) # stretch 1
-
-	  # set layout of container
-	  container.setLayout(containerLayout)
-
-	  # add container to edit panel
-	  externalLayout.addWidget(container)
-	  
-	# Now that we've added external edit controls, add the layout to the panel
-	self.vBox.addWidget(externalParameterGroupBox)
+          container.setLayout(containerLayout)
+          externalLayout.addWidget(container)
+      
+      self.vBox.addWidget(externalParameterGroupBox)
 
 class AbstractCanvasItem(object):
   """
@@ -1106,7 +1061,7 @@ class AbstractCanvasItem(object):
   
   @graphicsItem.setter
   def graphicsItem(self, graphicsItem):
-    if not isinstance(graphicsItem, (type(None), PyQt4.QtGui.QGraphicsItem, PyQt4.QtGui.QWidget, OptivisItemContainer)):
+    if not isinstance(graphicsItem, (type(None), QtWidgets.QGraphicsItem, QtWidgets.QWidget, OptivisItemContainer)):
       raise Exception('Specified graphics item is not a QGraphicsItem, QWidget, OptivisItemContainer or None')
     
     self.__graphicsItem = graphicsItem
@@ -1134,7 +1089,7 @@ class CanvasComponent(AbstractCanvasItem):
     super(CanvasComponent, self).__init__(item=component, *args, **kwargs)
   
   def draw(self, qScene):
-    print "[GUI] Drawing component {0} at {1}".format(self.item, self.item.position)
+    print("[GUI] Drawing component {0} at {1}".format(self.item, self.item.position))
     
     # Create full system path from filename and SVG directory.
     path = os.path.join(self.item.svgDir, self.item.filename)
@@ -1151,7 +1106,7 @@ class CanvasComponent(AbstractCanvasItem):
     qScene.addItem(self.graphicsItem)
   
   def redraw(self):
-    print "[GUI] Redrawing component {0} at {1}".format(self.item, self.item.position)
+    print("[GUI] Redrawing component {0} at {1}".format(self.item, self.item.position))
     
     self.setGraphicsFromItem()
     
@@ -1163,22 +1118,20 @@ class CanvasComponent(AbstractCanvasItem):
     # self.position.{x, y} are relative to the centre of the component, so we need to compensate for this.
     self.graphicsItem.setPos(self.item.position.x - self.item.size.x / 2, self.item.position.y - self.item.size.y / 2)
     
-    # Rotate clockwise.
-    # Qt rotates with respect to the component's origin, i.e. top left, so to rotate around the centre we need to translate it before and after rotating it.
-    self.graphicsItem.translate(self.item.size.x / 2, self.item.size.y / 2)
-    self.graphicsItem.rotate(self.item.azimuth)
-    self.graphicsItem.translate(-self.item.size.x / 2, -self.item.size.y / 2)
+    # Rotate clockwise about the centre.
+    self.graphicsItem.setTransformOriginPoint(self.item.size.x / 2, self.item.size.y / 2)
+    self.graphicsItem.setRotation(self.item.azimuth)
     
     # Set tooltip.
     if self.item.tooltip is not None:
       if hasattr(self.item.tooltip, "__call__"):
-	self.graphicsItem.setToolTip(str(self.item.tooltip()))
+        self.graphicsItem.setToolTip(str(self.item.tooltip()))
       else:
-	self.graphicsItem.setToolTip(str(self.item.tooltip))
+        self.graphicsItem.setToolTip(str(self.item.tooltip))
 
-class OptivisSvgItem(PyQt4.QtSvg.QGraphicsSvgItem):
-  mousePressed = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
-  mouseReleased = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
+class OptivisSvgItem(QtSvg.QGraphicsSvgItem):
+  mousePressed = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
+  mouseReleased = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
   
   def __init__(self, *args, **kwargs):
     super(OptivisSvgItem, self).__init__(*args, **kwargs)
@@ -1210,7 +1163,7 @@ class CanvasLink(AbstractCanvasItem):
     super(CanvasLink, self).__init__(item=link, *args, **kwargs)
 
   def draw(self, qScene, *args, **kwargs):
-    print "[GUI] Drawing link {0}".format(self.item)
+    print("[GUI] Drawing link {0}".format(self.item))
     
     # create graphics object(s)
     container = OptivisItemContainer()
@@ -1226,8 +1179,8 @@ class CanvasLink(AbstractCanvasItem):
     self.graphicsItem = container
 
     # create start and end markers
-    self.startMarker = PyQt4.QtGui.QGraphicsEllipseItem()
-    self.endMarker = PyQt4.QtGui.QGraphicsEllipseItem()
+    self.startMarker = QtWidgets.QGraphicsEllipseItem()
+    self.endMarker = QtWidgets.QGraphicsEllipseItem()
 
     # add markers to graphics scene
     qScene.addItem(self.startMarker)
@@ -1239,7 +1192,7 @@ class CanvasLink(AbstractCanvasItem):
     container.draw(qScene)
 
   def redraw(self, *args, **kwargs):
-    print "[GUI] Redrawing link {0}".format(self.item)
+    print("[GUI] Redrawing link {0}".format(self.item))
     
     self.setGraphicsFromItem(*args, **kwargs)
 
@@ -1256,7 +1209,7 @@ class CanvasLink(AbstractCanvasItem):
       self.graphicsItem.getItem(i).setLine(self.item.start.x + offsetPos.x, self.item.start.y + offsetPos.y, self.item.end.x + offsetPos.x, self.item.end.y + offsetPos.y)
     
       # create pen
-      pen = PyQt4.QtGui.QPen(PyQt4.QtGui.QColor(self.item.specs[i].color), self.item.specs[i].width, PyQt4.QtCore.Qt.SolidLine)
+      pen = QtGui.QPen(QtGui.QColor(self.item.specs[i].color), self.item.specs[i].width, QtCore.Qt.SolidLine)
     
       # set pattern
       pen.setDashPattern(self.item.specs[i].pattern)
@@ -1266,20 +1219,20 @@ class CanvasLink(AbstractCanvasItem):
     
     # set markers
     self.startMarker.setRect(self.item.start.x - startMarkerRadius, self.item.start.y - startMarkerRadius, startMarkerRadius * 2, startMarkerRadius * 2)
-    self.startMarker.setPen(PyQt4.QtGui.QPen(PyQt4.QtGui.QColor(startMarkerColor), 1, PyQt4.QtCore.Qt.SolidLine))
+    self.startMarker.setPen(QtGui.QPen(QtGui.QColor(startMarkerColor), 1, QtCore.Qt.SolidLine))
     
     self.endMarker.setRect(self.item.end.x - endMarkerRadius, self.item.end.y - endMarkerRadius, endMarkerRadius * 2, endMarkerRadius * 2)
-    self.endMarker.setPen(PyQt4.QtGui.QPen(PyQt4.QtGui.QColor(endMarkerColor), 1, PyQt4.QtCore.Qt.SolidLine))
+    self.endMarker.setPen(QtGui.QPen(QtGui.QColor(endMarkerColor), 1, QtCore.Qt.SolidLine))
 
-class OptivisLineItemCommunicator(PyQt4.QtCore.QObject):
+class OptivisLineItemCommunicator(QtCore.QObject):
   """
   Qt Signals communication class for OptivisLineItem
   """
   
-  mousePressed = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
-  mouseReleased = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
+  mousePressed = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
+  mouseReleased = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
 
-class OptivisLineItem(PyQt4.QtGui.QGraphicsLineItem):  
+class OptivisLineItem(QtWidgets.QGraphicsLineItem):  
   def __init__(self, *args, **kwargs):
     # Create a communicator.
     # This is necessary because QGraphicsLineItem does not inherit from QObject, so it does
@@ -1313,7 +1266,7 @@ class CanvasLabel(AbstractCanvasItem):
     super(CanvasLabel, self).__init__(item=label, *args, **kwargs)
 
   def draw(self, qScene, *args, **kwargs):
-    print "[GUI] Drawing label {0}".format(self.item)
+    print("[GUI] Drawing label {0}".format(self.item))
 
     # create label
     self.graphicsItem = OptivisLabelItem()
@@ -1328,7 +1281,7 @@ class CanvasLabel(AbstractCanvasItem):
     qScene.addItem(self.graphicsItem)
     
   def redraw(self, *args, **kwargs):
-    print "[GUI] Redrawing label {0}".format(self.item)
+    print("[GUI] Redrawing label {0}".format(self.item))
     
     # Update graphical representation.
     self.setGraphicsFromItem(*args, **kwargs)
@@ -1342,10 +1295,9 @@ class CanvasLabel(AbstractCanvasItem):
     # Create label sub-content
     if labelFlags is not None:
       for kv in self.item.content.items():
-	if kv[0] in labelFlags.keys():
-	  if labelFlags[kv[0]]:
-	    # label is turned on
-	    content.append("{0} = {1}".format(kv[0], kv[1]))
+        if kv[0] in labelFlags.keys():
+          if labelFlags[kv[0]]:
+            content.append("{0} = {1}".format(kv[0], kv[1]))
     
     # Set text
     self.graphicsItem.setText(self.item.text + "\n" + "\n".join(content))
@@ -1372,16 +1324,16 @@ class CanvasLabel(AbstractCanvasItem):
     self.graphicsItem.setPos(labelPosition.x, labelPosition.y)
     self.graphicsItem.setRotation(labelAzimuth)
 
-class OptivisLabelItemCommunicator(PyQt4.QtCore.QObject):
+class OptivisLabelItemCommunicator(QtCore.QObject):
   """
   Qt Signals communication class for OptivisLabelItem
   """
   
-  mousePressed = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
-  mouseMoved = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
-  mouseReleased = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
+  mousePressed = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
+  mouseMoved = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
+  mouseReleased = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
 
-class OptivisLabelItem(PyQt4.QtGui.QGraphicsSimpleTextItem):
+class OptivisLabelItem(QtWidgets.QGraphicsSimpleTextItem):
   def __init__(self, *args, **kwargs):
     # Create a communicator.
     # This is necessary because QGraphicsSimpleTextItem does not inherit from QObject, so it does
@@ -1415,13 +1367,13 @@ class OptivisLabelItem(PyQt4.QtGui.QGraphicsSimpleTextItem):
     # emit event as a signal
     self.comms.mouseReleased.emit(event)
 
-class OptivisItemContainerCommunicator(PyQt4.QtCore.QObject):
+class OptivisItemContainerCommunicator(QtCore.QObject):
   """
   Qt Signals communication class for OptivisItemContainer
   """
   
-  mousePressed = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
-  mouseReleased = PyQt4.QtCore.pyqtSignal(PyQt4.QtGui.QGraphicsSceneMouseEvent)
+  mousePressed = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
+  mouseReleased = QtCore.pyqtSignal(QtWidgets.QGraphicsSceneMouseEvent)
 
 class OptivisItemContainer(object):
   """
@@ -1435,7 +1387,7 @@ class OptivisItemContainer(object):
     self.comms = OptivisItemContainerCommunicator()
 
   def addItem(self, item):
-    if not isinstance(item, (PyQt4.QtGui.QGraphicsItem, PyQt4.QtGui.QWidget)):
+    if not isinstance(item, (QtWidgets.QGraphicsItem, QtWidgets.QWidget)):
       raise Exception('Specified item is not of type QGraphicsItem or QWidget')
 
     item.comms.mousePressed.connect(self.comms.mousePressed)
@@ -1481,11 +1433,11 @@ class OptivisCanvasItemDataType(OptivisItemDataType):
   def getCanvasWidget(itemParamName, itemDataType, *args, **kwargs):
 
     if itemDataType == OptivisCanvasItemDataType.TEXTBOX:
-      widget = PyQt4.QtGui.QLineEdit()
+      widget = QtWidgets.QLineEdit()
 
       return widget
     elif itemDataType == OptivisCanvasItemDataType.SPINBOX:
-      widget = PyQt4.QtGui.QDoubleSpinBox()
+      widget = QtWidgets.QDoubleSpinBox()
       
       # set range and increment
       acceptRange = kwargs['acceptRange']
@@ -1524,11 +1476,11 @@ class OptivisCanvasItemDataType(OptivisItemDataType):
     else:
       raise Exception('Specified item data type is invalid')
 
-class CanvasScaleFunctionEditor(PyQt4.Qt.QMainWindow):
-  def __init__(self, layoutManager, *args, **kwargs):
+class CanvasScaleFunctionEditor(QtWidgets.QMainWindow):
+  def __init__(self, parent, layoutManager, *args, **kwargs):
     self.layoutManager = layoutManager
     
-    super(CanvasScaleFunctionEditor, self).__init__(*args, **kwargs)
+    super(CanvasScaleFunctionEditor, self).__init__(parent, *args, **kwargs)
     
   @property
   def layoutManager(self):

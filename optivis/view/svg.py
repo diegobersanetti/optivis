@@ -78,7 +78,7 @@ class Svg(optivis.view.AbstractView):
     # check size is valid, if specified
     if size is not None:
       if not isinstance(size, optivis.geometry.Coordinates):
-	raise Exception('Specified size is not of type Coordinates.')
+        raise Exception('Specified size is not of type Coordinates.')
     
     # raise exception if SVG format specified along with a size
     if fileFormat == 'svg' and isinstance(size, optivis.geometry.Coordinates):
@@ -87,27 +87,23 @@ class Svg(optivis.view.AbstractView):
     # lay things out before doing anything else
     self.layout()
     
-    # initial export data
-    exportContent = None
+    svgString = self.getSvgString(size=size)
+    mode = 'w'
+    exportContent = svgString
     
-    # convert format, if necessary
     if fileFormat != 'svg':
-      # get SVG document
-      svgByteString = unicode.encode(self.getSvgString(size=size))
+      svgBytes = svgString.encode('utf-8')
+      mode = 'wb'
       
       if fileFormat == 'png':
-	exportContent = cairosvg.surface.PNGSurface.convert(bytestring=svgByteString)
+        exportContent = cairosvg.svg2png(bytestring=svgBytes, dpi=dpi)
       elif fileFormat == 'pdf':
-	exportContent = cairosvg.surface.PDFSurface.convert(bytestring=svgByteString, dpi=dpi)
+        exportContent = cairosvg.svg2pdf(bytestring=svgBytes, dpi=dpi)
       elif fileFormat == 'ps':
-	exportContent = cairosvg.surface.PSSurface.convert(bytestring=svgByteString, dpi=dpi)
-    else:
-      # get SVG document
-      exportContent = self.getSvgString()
+        exportContent = cairosvg.svg2ps(bytestring=svgBytes, dpi=dpi)
 
-    f = open(path, 'w')
-    f.write(exportContent)
-    f.close()
+    with open(path, mode) as f:
+      f.write(exportContent)
     
     return
 
@@ -141,7 +137,7 @@ class Svg(optivis.view.AbstractView):
       # draw component with offset applied to centre everything in the SVG canvas
       svgComponent.draw(drawElement)
     
-    docStr = '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n' + et.tostring(rootElement)
+    docStr = '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n' + et.tostring(rootElement, encoding='unicode')
     
     return docStr
 
@@ -197,35 +193,31 @@ class SvgComponent(AbstractSvgItem):
     # loop over all subelements of the root, replacing ID with a unique string (this allows the same SVG images to be used multiple times in a document)
     for element in list(graphicGroup.iter()):
       if 'id' in element.attrib:
-	# element has an ID associated with it - check if it's been seen already	
-	currentId = element.attrib['id']
-	
-	if currentId in uniqueIds:
-	  raise Exception('Found duplicate ID in SVG file %s'.format(path))
-	
-	# current ID has not yet been seen - generate a unique alternative
-	uniqueId = 'e{0}'.format(id(element))
-	
-	# map unique ID to current ID
-	uniqueIds[currentId] = uniqueId
+        currentId = element.attrib['id']
+        
+        if currentId in uniqueIds:
+          raise Exception('Found duplicate ID in SVG file %s'.format(path))
+        
+        uniqueId = 'e{0}'.format(id(element))
+        uniqueIds[currentId] = uniqueId
 
     # loop over all subelements again, replacing IDs with unique equivalents
     for element in list(graphicGroup.iter()):
       if 'id' in element.attrib:
-	element.attrib['id'] = uniqueIds[element.attrib['id']]
+        element.attrib['id'] = uniqueIds[element.attrib['id']]
       
       # check any attributes for references to IDs
-      for (attrKey, attrVal) in element.attrib.iteritems():
-	# loop over all entries of map
-	for thisId in uniqueIds:
-	  # form string with hash at beginning to search for references to IDs
-	  needle = 'url(#{0})'.format(thisId)
-	  if needle in attrVal:
-	    # found reference to ID - create replacement
-	    newNeedle = 'url(#{0})'.format(uniqueIds[thisId])
-	  
-	    # replace with unique ID
-	    element.attrib[attrKey] = attrVal.replace(needle, newNeedle)
+      for (attrKey, attrVal) in element.attrib.items():
+        # loop over all entries of map
+        for thisId in uniqueIds:
+          # form string with hash at beginning to search for references to IDs
+          needle = 'url(#{0})'.format(thisId)
+          if needle in attrVal:
+            # found reference to ID - create replacement
+            newNeedle = 'url(#{0})'.format(uniqueIds[thisId])
+          
+            # replace with unique ID
+            element.attrib[attrKey] = attrVal.replace(needle, newNeedle)
 
     # now graphicGroup contains content with unique IDs, ready to be combined with other SVG markup.
     # create a new group to control this SVG image's global position (accounting for centre of rotation)

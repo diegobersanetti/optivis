@@ -46,8 +46,8 @@ class Label(AbstractLabel):
   
   @text.setter
   def text(self, text):
-    if not isinstance(text, basestring):
-      raise Exception('Specified label text is not of type basestring')
+    if not isinstance(text, str):
+      raise Exception('Specified label text is not of type str')
 
     self.__text = text
   

@@ -5,8 +5,8 @@ import math
 
 import optivis.bench
 import optivis.geometry
-import nodes
-import labels
+from optivis.bench import labels
+from optivis.bench import nodes
 
 class AbstractLink(optivis.bench.AbstractBenchItem):
   __metaclass__ = abc.ABCMeta
@@ -112,13 +112,14 @@ class AbstractLink(optivis.bench.AbstractBenchItem):
 
   @length.setter
   def length(self, length):
-    if length is not None:
-      # raises TypeError if input is invalid, or ValueError if a string input can't be interpreted
-      length = float(length)
-      
-      
-      if length < 0:
-        raise Exception('Length must be greater than or equal to 0')
+    if length is None:
+      raise TypeError('Length must be greater than or equal to 0')
+
+    # raises TypeError if input is invalid, or ValueError if a string input cannot be interpreted
+    length = float(length)
+
+    if length < 0:
+      raise Exception('Length must be greater than or equal to 0')
     
     self.__length = length
     
@@ -164,6 +165,25 @@ class Link(AbstractLink):
   def __init__(self, *args, **kwargs):
     super(Link, self).__init__(*args, **kwargs)
 
+  @property
+  def width(self):
+    return self.specs[0].width
+
+  @width.setter
+  def width(self, width):
+    self.specs[0].width = width
+
+  @property
+  def pattern(self):
+    return self.specs[0].pattern
+
+  @pattern.setter
+  def pattern(self, pattern):
+    if pattern is None:
+      raise Exception('Specified pattern list must contain an even number of elements')
+
+    self.specs[0].pattern = pattern
+
 class LinkSpec(object):
   def __init__(self, width=1.0, color="red", pattern=None, offset=0, startMarker=False, endMarker=False, startMarkerRadius=3, endMarkerRadius=2, startMarkerColor="red", endMarkerColor="blue", *args, **kwargs):
     self.width = width
@@ -199,8 +219,8 @@ class LinkSpec(object):
   
   @color.setter
   def color(self, color):
-    if not isinstance(color, basestring):
-      raise Exception('Specified color is not of type basestring')
+    if not isinstance(color, str):
+      raise Exception('Specified color is not of type str')
     
     #FIXME: check for valid colors here
     self.__color = color
@@ -219,7 +239,7 @@ class LinkSpec(object):
         raise Exception('Specified pattern is not a list')
   
       # check that list is an even number (a pattern must be a series of dash-space pairs)
-      if len(pattern) % 2 is not 0:
+      if len(pattern) % 2 != 0:
         raise Exception('Specified pattern list must contain an even number of elements')
     
       # check elements are integers

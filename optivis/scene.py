@@ -2,10 +2,10 @@ from __future__ import unicode_literals, division
 
 import datetime
 
-import geometry
-import bench.components
-import bench.links
-import layout.constraints
+from optivis import geometry
+from optivis.bench import components
+from optivis.bench import links
+from optivis.layout import constraints
 
 class Scene(object):
   links = []
@@ -24,8 +24,8 @@ class Scene(object):
 
   @title.setter
   def title(self, title):
-    if not isinstance(title, basestring):
-      raise Exception('Specified title is not of type basestring')
+    if not isinstance(title, str):
+      raise Exception('Specified title is not of type str')
     
     self.__title = title
   
@@ -42,24 +42,24 @@ class Scene(object):
   def reference(self, component):    
     if component is not None:
       # check component is valid object
-      if not isinstance(component, bench.components.AbstractComponent):
-	raise Exception('Specified component is not of type AbstractComponent')
+      if not isinstance(component, components.AbstractComponent):
+        raise Exception('Specified component is not of type AbstractComponent')
     
     self.__reference = component
   
   def link(self, *args, **kwargs):
-    link = bench.links.Link(*args, **kwargs)
+    link = links.Link(*args, **kwargs)
     
     self.addLink(link)
   
   def addLink(self, link):
-    if not isinstance(link, bench.links.AbstractLink):
+    if not isinstance(link, links.AbstractLink):
       raise Exception('Specified link is not of type AbstractLink')
     
     self.links.append(link)
   
   def addConstraint(self, constraint):
-    if not isinstance(constraint, layout.constraints.AbstractConstraint):
+    if not isinstance(constraint, constraints.AbstractConstraint):
       raise Exception('Specified constraint is not of type AbstractConstraint')
     
     self.constraints.append(constraint)
@@ -69,10 +69,10 @@ class Scene(object):
     
     for link in self.links:
       if link.inputNode.component not in components:
-	components.append(link.inputNode.component)
+        components.append(link.inputNode.component)
       
       if link.outputNode.component not in components:
-	components.append(link.outputNode.component)
+        components.append(link.outputNode.component)
 
     return components
   

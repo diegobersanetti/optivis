@@ -3,11 +3,11 @@ from __future__ import unicode_literals, division
 import abc
 import math
 
-import optivis
 import optivis.geometry
+import optivis.scene
 import optivis.bench.components
 import optivis.bench.links
-import scale
+from optivis.layout import scale
 
 class AbstractLayout(object):
   __metaclass__ = abc.ABCMeta
@@ -76,7 +76,7 @@ class AbstractLayout(object):
       self.layoutLinkChain(link, self.scene.reference)
       
   def layoutLinkChain(self, link, referenceComponent):    
-    print "[Layout] Linking {0} with respect to {1}".format(link, referenceComponent)
+    print("[Layout] Linking {0} with respect to {1}".format(link, referenceComponent))
     
     referenceNode = None
     targetNode = None
@@ -94,7 +94,7 @@ class AbstractLayout(object):
     
     # check if target is already laid out
     if self.isFixed(targetComponent):      
-      print "[Layout]      WARNING: target component {0} is already laid out. Linking with straight line.".format(targetComponent)
+      print("[Layout]      WARNING: target component {0} is already laid out. Linking with straight line.".format(targetComponent))
       
       # set link start and end positions
       link.start = link.outputNode.getAbsolutePosition()
@@ -128,20 +128,19 @@ class AbstractLayout(object):
     
     for link in self.scene.links:
       if link == avoid:
-	# skip this link, because it has been requested to be avoided
-	continue
+        continue
       
       if link.hasComponent(component):
-	links.append(link)
+        links.append(link)
 
     return links
 
   def removeLinkFromList(self, link, links):
     for i in range(0, len(links)):
       if links[i] == link:
-	del(links[i])
-	
-	return links
+        del(links[i])
+        
+        return links
     
     raise Exception('Link {0} was not found in the list provided'.format(link))
   
@@ -212,7 +211,7 @@ class ConstrainedLayout(AbstractLayout):
       # check if any constraints constrain this component
       for constraint in self.scene.constraints:
         if constraint.constrains(component):
-          print "{0} is fixed".format(component)
+          print("{0} is fixed".format(component))
           return True
       
       # check if this is attached to a constrained component
@@ -225,9 +224,9 @@ class ConstrainedLayout(AbstractLayout):
               # this is the other side of the link
               for constraint in self.scene.constraints:
                 if constraint.constrains(thisComponent):
-                  print "{0} is fixed because it's attached to fixed component {1}".format(component, thisComponent)
+                  print("{0} is fixed because it's attached to fixed component {1}".format(component, thisComponent))
                   return True
     
-    print "{0} is not fixed".format(component)
+    print("{0} is not fixed".format(component))
     
     return False
