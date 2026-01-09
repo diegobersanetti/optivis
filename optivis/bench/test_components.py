@@ -3,8 +3,7 @@ from __future__ import unicode_literals, division
 from unittest import TestCase
 import optivis.scene
 import optivis.geometry
-import components
-import links
+from optivis.bench import components
 
 class TestComponentAttributes(TestCase):
   def setUp(self):

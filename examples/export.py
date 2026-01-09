@@ -45,21 +45,21 @@ kwargs = {}
 formats = svg.Svg._Svg__formats
 
 while True:
-  print 'Valid formats are: ' + ', '.join(formats)
-  fileFormat = raw_input('Enter a format: ')
+  print('Valid formats are: ' + ', '.join(formats))
+  fileFormat = input('Enter a format: ')
   
   if fileFormat in formats:
     break
   else:
-    print 'Invalid format: {0}'.format(fileFormat)
+    print('Invalid format: {0}'.format(fileFormat))
 
 # get a valid filename
 while True:
   try:
-    path = raw_input('Enter a filename: ')
+    path = input('Enter a filename: ')
     
     break
-  except Exception, e:
+  except Exception as e:
     print('Invalid path: {0}'.format(e))
     
 view.export(path, fileFormat=fileFormat)

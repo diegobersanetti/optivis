@@ -3,7 +3,7 @@ from __future__ import unicode_literals, division
 import abc
 import weakref
 
-import labels
+from optivis.bench import labels
 
 class AbstractBenchItem(object):
   """

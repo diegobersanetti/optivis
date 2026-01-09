@@ -5,14 +5,16 @@
 Script to visualise optical environments. Uses the fantastic SVG optical components created by Alexander Franzen (http://www.gwoptics.org/ComponentLibrary/).  
 
 ## Requirements ##
-Optivis requires Python 2.7+ or higher. For extra functionality, you must also install additional packages:
+Optivis requires Python 3 (tested with 3.10 on Ubuntu 22.04). For extra functionality, install:
 
-* `python-qt4` for the GUI
-* `python-cairosvg` for PDF, PostScript and PNG export capability
+* `python3-pyqt5` and `python3-pyqt5.qtsvg` for the GUI
+* `python3-cairosvg` for PDF, PostScript and PNG export capability
 
-On Ubuntu/Debian you should be able to install all of these with the following command:
+On Ubuntu 22.04 the system packages can be installed with:
 
-`$ sudo apt-get install python python-qt4 python-cairosvg`
+`$ sudo apt-get install python3 python3-pyqt5 python3-pyqt5.qtsvg python3-cairosvg`
+
+If you prefer `pip`, install `PyQt5` (which pulls QtSvg) and `cairosvg` into your Python 3 environment instead.
 
 ## How To ##
 Optivis is pretty straightforward to use. You start off by importing a bunch of Optivis modules:
@@ -130,7 +132,7 @@ There are a number of features planned for future releases. See the [issue track
 ## Tests ##
 Optivis contains some basic tests to validate and verify inputs to its various objects. You can check that the tests pass or fail by running
 
-`python optivis test`
+`python3 -m optivis test`
 
 from the root Optivis directory (the same directory as this readme).
 

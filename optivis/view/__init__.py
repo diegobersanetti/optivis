@@ -186,8 +186,8 @@ class AbstractView(object):
   
   @startMarkerColor.setter
   def startMarkerColor(self, startMarkerColor):
-    if not isinstance(startMarkerColor, basestring):
-      raise Exception('Specified start marker color is not of type basestring')
+    if not isinstance(startMarkerColor, str):
+      raise Exception('Specified start marker color is not of type str')
     
     #FIXME: check for valid colors here
     self.__startMarkerColor = startMarkerColor
@@ -198,8 +198,8 @@ class AbstractView(object):
   
   @endMarkerColor.setter
   def endMarkerColor(self, endMarkerColor):
-    if not isinstance(endMarkerColor, basestring):
-      raise Exception('Specified end marker color is not of type basestring')
+    if not isinstance(endMarkerColor, str):
+      raise Exception('Specified end marker color is not of type str')
     
     #FIXME: check for valid colors here
     self.__endMarkerColor = endMarkerColor

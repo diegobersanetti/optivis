@@ -6,7 +6,7 @@ import abc
 
 import optivis.bench
 import optivis.geometry
-import nodes
+from optivis.bench import nodes
 
 class AbstractComponent(optivis.bench.AbstractBenchItem):
   __metaclass__ = abc.ABCMeta
@@ -45,6 +45,9 @@ class AbstractComponent(optivis.bench.AbstractBenchItem):
   def __eq__(self, other):
     return self.__dict__ == other.__dict__
   
+  def __hash__(self):
+    return id(self)
+  
   def getBoundingBox(self):
     # get nominal corner positions
     topLeft = self.size * optivis.geometry.Coordinates(-0.5, -0.5)
@@ -77,8 +80,8 @@ class AbstractComponent(optivis.bench.AbstractBenchItem):
   
   @name.setter
   def name(self, name):
-    if not isinstance(name, basestring):
-      raise Exception('Specified name is not of type basestring')
+    if not isinstance(name, str):
+      raise Exception('Specified name is not of type str')
     
     self.__name = name
   
@@ -88,8 +91,8 @@ class AbstractComponent(optivis.bench.AbstractBenchItem):
   
   @filename.setter
   def filename(self, filename):
-    if not isinstance(filename, basestring):
-      raise Exception('Specified filename is not of type basestring')
+    if not isinstance(filename, str):
+      raise Exception('Specified filename is not of type str')
     
     self.__filename = filename
     
@@ -161,14 +164,14 @@ class AbstractComponent(optivis.bench.AbstractBenchItem):
   def getInputNode(self, nodeName):
     for node in self.inputNodes:
       if node.name == nodeName:
-	return node
+        return node
     
     raise Exception('No input node with name {0} found'.format(nodeName))
   
   def getOutputNode(self, nodeName):
     for node in self.outputNodes:
       if node.name == nodeName:
-	return node
+        return node
     
     raise Exception('No output node with name {0} found'.format(nodeName))
   

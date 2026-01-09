@@ -80,7 +80,7 @@ class Coordinates(object):
     
     if not isinstance(otherCoordinates, Coordinates):
       if not isinstance(otherCoordinates, float) or isinstance(otherCoordinates, int):
-	raise Exception('Specified equality target is not of type Coordinates, float or int')
+        raise Exception('Specified equality target is not of type Coordinates, float or int')
       
       return (abs(self.x - otherCoordinates) <= max(xTests)) and (abs(self.y - otherCoordinates) <= max(yTests))
       
